@@ -18,25 +18,26 @@ class Solution:
 			graph[line[0]].add(line[1])
 			graph[line[1]].add(line[0])
 		return graph
-	def findCycle(self, graph, start, maxDegree=3, result=[]):
+	def findCycle(self, graph, start, degree=3, result=[]):
 		print ('graph', graph)
 		visited = set()
 		queue = [start]
-		degree = 0
 
-		while len(queue) > 0 and degree < maxDegree:
+		while len(queue) > 0:
 			vertex = queue.pop(0)
 			if vertex not in visited:
 				visited.add(vertex)
-				degree += 1
-				if degree == maxDegree and start in graph[vertex]:
+				tmp = copy.deepcopy(visited)
+				for item in tmp:
+					if item not in graph[vertex] and item != vertex:
+						visited.remove(item)
+				if len(visited) == degree and start in graph[vertex]:
 					print ('in loop', visited)
 					#visitList = [e for e in visited]
 					tmp = copy.copy(visited)
 					if tmp not in result:
 						result.append(tmp)
 					visited.remove(vertex)
-					degree -= 1
 					continue
 				for v in graph[vertex]:
 					if v not in visited:
@@ -47,4 +48,4 @@ class Solution:
 
 soln = Solution()
 graph = soln.generateGraph('threeMusketeers.txt')
-print(soln.findCycle(graph, 2, 3))
+print(soln.findCycle(graph, 1, 3))
