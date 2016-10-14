@@ -1,3 +1,5 @@
+import copy
+import math
 #graph = {'A': set(['B', 'C']),
 #         'B': set(['A', 'D', 'E']),
 #         'C': set(['A', 'F']),
@@ -8,7 +10,6 @@ graphB = {1: set([2,4]),
           2: set([1,3]),
 		  3: set([2,4]),
 		  4: set([1,3])}
-import copy
 class Solution:
 	def generateGraph(self, path):
 		f = open(path, 'r')
@@ -22,37 +23,56 @@ class Solution:
 			graph[line[0]].add(line[1])
 			graph[line[1]].add(line[0])
 		return graph
-	def findCycle(self, graph, start, degree=3, result=[]):
-		print ('graph', graph)
+	def findMusketeers(self, graph, start, degree=3, result=[]):
+		#print ('graph', graph)
 		visited = set()
 		queue = [start]
 
 		while len(queue) > 0:
 			#print('h')
 			vertex = queue.pop(0)
-			if vertex not in visited:
-				visited.add(vertex)
-				#if len(visited) == degree and start not in graph[vertex]:
-				#	continue
-				tmp = copy.deepcopy(visited)
-				#print(tmp, vertex)
-				for item in visited:
-					if item not in graph[vertex] and item != vertex:
-						tmp.remove(item)
-				if len(tmp) == degree and start in graph[vertex]:
-					print ('in loop', tmp)
-					#visitList = [e for e in visited]
-					#tmp = copy.copy(visited)
-					if tmp not in result:
-						tmp2 = copy.deepcopy(tmp)
-						result.append(tmp2)
-					tmp.remove(vertex)
-					continue
-				for v in graph[vertex]:
-					if v not in visited:
-						queue.append(v)
+		#if vertex not in visited:
+			visited.add(vertex)
+			#if len(visited) == degree and start not in graph[vertex]:
+			#	continue
+			curr = copy.deepcopy(visited)
+
+			#print(curr, vertex)
+			for item in visited:
+				if item not in graph[vertex] and item != vertex:
+					curr.remove(item)
+			if len(curr) == degree and start in graph[vertex]:
+				if curr not in result:
+					curr2 = copy.deepcopy(curr)
+					result.append(curr2)
+				curr.remove(vertex)
+				continue
+			for neighbor in graph[vertex]:
+				if neighbor not in visited:
+					queue.append(neighbor)
 		return result
 
+	def findMinRec(self, path):
+		graph = self.generateGraph(path)
+		deg = {}
+		for key in graph:
+			deg[key] = len(graph[key])
+		minRes = math.inf
+		for key in graph:
+			result = self.findMusketeers(graph, key, degree=3)
+			for cycle in result:
+				res = sum([deg[key] for key in cycle])
+				if res <= minRes:
+					minRes = res
+
+		if minRes == math.inf:
+			minRes = -1
+		else:
+			minRes -= 6
+		return minRes
+
+
 soln = Solution()
-graph = soln.generateGraph('threeMusketeers.txt')
-print(soln.findCycle(graph, 4, degree=3))
+#graph = soln.generateGraph('threeMusketeers.txt')
+#print(soln.findMusketeers(graph, 1, degree=3))
+print(soln.findMinRec('threeMusketeers.txt'))
