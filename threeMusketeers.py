@@ -1,15 +1,6 @@
 import copy
 import math
-#graph = {'A': set(['B', 'C']),
-#         'B': set(['A', 'D', 'E']),
-#         'C': set(['A', 'F']),
-#         'D': set(['B']),
-#         'E': set(['B', 'F']),
-#         'F': set(['C', 'E'])}
-graphB = {1: set([2,4]),
-          2: set([1,3]),
-		  3: set([2,4]),
-		  4: set([1,3])}
+
 class Solution:
 	def generateGraph(self, path):
 		f = open(path, 'r')
@@ -23,21 +14,17 @@ class Solution:
 			graph[line[0]].add(line[1])
 			graph[line[1]].add(line[0])
 		return graph
+
 	def findMusketeers(self, graph, start, degree=3, result=[]):
-		#print ('graph', graph)
 		visited = set()
 		queue = [start]
 
 		while len(queue) > 0:
-			#print('h')
 			vertex = queue.pop(0)
-		#if vertex not in visited:
 			visited.add(vertex)
-			#if len(visited) == degree and start not in graph[vertex]:
-			#	continue
 			curr = copy.deepcopy(visited)
-
-			#print(curr, vertex)
+			# remove item in the current path that are not connected with v
+			# since in a cycle of 3 every pair of vertices are connected
 			for item in visited:
 				if item not in graph[vertex] and item != vertex:
 					curr.remove(item)
@@ -54,9 +41,12 @@ class Solution:
 
 	def findMinRec(self, path):
 		graph = self.generateGraph(path)
+
+		# hash table for degree of each vertex
 		deg = {}
 		for key in graph:
 			deg[key] = len(graph[key])
+
 		minRes = math.inf
 		for key in graph:
 			result = self.findMusketeers(graph, key, degree=3)
@@ -65,14 +55,13 @@ class Solution:
 				if res <= minRes:
 					minRes = res
 
+
 		if minRes == math.inf:
-			minRes = -1
+			minRes = -1 # no matches
 		else:
-			minRes -= 6
+			minRes -= 6 # subtract mutual recognition
 		return minRes
 
 
 soln = Solution()
-#graph = soln.generateGraph('threeMusketeers.txt')
-#print(soln.findMusketeers(graph, 1, degree=3))
 print(soln.findMinRec('threeMusketeers.txt'))
